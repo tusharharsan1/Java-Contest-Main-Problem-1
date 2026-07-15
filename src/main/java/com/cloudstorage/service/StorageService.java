@@ -3,48 +3,62 @@ package com.cloudstorage.service;
 import com.cloudstorage.exception.FileNotFoundInStorageException;
 import com.cloudstorage.model.StorageItem;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
-// TODO 10: Annotate this class so Spring recognizes it as a Service component
+@Service
 public class StorageService {
 
     // Simulating a database in-memory to test Java Collections and Streams
     private Map<String, StorageItem> storage = new HashMap<>();
 
     public void uploadFile(StorageItem file) {
-        // TODO 11: Add the file to the storage map using its fileId as the key.
+        storage.put(file.getFileId(), file);
     }
 
     public List<StorageItem> getActiveFiles() {
-        // TODO 12: Use Streams to return a List of all active files (isActive() is true).
-        return new ArrayList<>(); // Replace this
+        return storage.values().stream()
+                .filter(StorageItem::isActive)
+                .collect(Collectors.toList());
     }
 
     public double getTotalActiveStorageCost() {
-        // TODO 13: Use Streams to calculate the sum of calculateStorageCost() for all active files.
-        return 0.0; // Replace this
+        return storage.values().stream()
+                .filter(StorageItem::isActive)
+                .mapToDouble(StorageItem::calculateStorageCost)
+                .sum();
     }
 
     public StorageItem findMostExpensiveActiveFile() {
-        // TODO 14: Use Streams to find the active file with highest cost. Throw FileNotFoundInStorageException if none exist.
-        return null; // Replace this
+        return storage.values().stream()
+                .filter(StorageItem::isActive)
+                .max(Comparator.comparingDouble(StorageItem::calculateStorageCost))
+                .orElseThrow(() -> new FileNotFoundInStorageException("No active files found in storage"));
     }
 
     public void archiveFile(String fileId) {
-        // TODO 15: Find the file by ID and call archive(). Throw FileNotFoundInStorageException if ID is not found.
+        StorageItem file = storage.get(fileId);
+        if (file == null) {
+            throw new FileNotFoundInStorageException("File not found: " + fileId);
+        }
+        file.archive();
     }
 
     public long countActiveOfType(Class<? extends StorageItem> type) {
-        // TODO 16: Use Streams to count how many active files are instances of the specified class type.
-        return 0; // Replace this
+        return storage.values().stream()
+                .filter(StorageItem::isActive)
+                .filter(type::isInstance)
+                .count();
     }
 
-    // TODO 33: Implement a generic method named getActiveFilesByType that returns a List of active files of the given type.
-    // The method signature must be: public <T extends StorageItem> List<T> getActiveFilesByType(Class<T> type)
-    // Hint: Use Streams. Filter by isActive, filter by type.isInstance, map using type::cast, and collect to List.
-    // Replace the following line with your full method implementation:
-    // ...
+    public <T extends StorageItem> List<T> getActiveFilesByType(Class<T> type) {
+        return storage.values().stream()
+                .filter(StorageItem::isActive)
+                .filter(type::isInstance)
+                .map(type::cast)
+                .collect(Collectors.toList());
+    }
 
     // PROVIDED: Do not modify
     public int getTotalFileCount() { return storage.size(); }
