@@ -1,0 +1,10 @@
+com/cloudstorage/CloudStorageApplication.class
+com/cloudstorage/exception/InvalidFileSizeException.class
+com/cloudstorage/exception/FileNotFoundInStorageException.class
+com/cloudstorage/model/MediaFile.class
+com/cloudstorage/model/ArchiveFile.class
+com/cloudstorage/model/StorageItem.class
+com/cloudstorage/model/DocumentFile.class
+com/cloudstorage/model/Archivable.class
+com/cloudstorage/service/StorageService.class
+com/cloudstorage/controller/StorageController.class
