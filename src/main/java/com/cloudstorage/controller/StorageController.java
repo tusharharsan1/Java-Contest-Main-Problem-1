@@ -2,10 +2,11 @@ package com.cloudstorage.controller;
 
 import com.cloudstorage.model.StorageItem;
 import com.cloudstorage.service.StorageService;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/storage")
 public class StorageController {
 
     private final StorageService storageService;
@@ -14,36 +15,38 @@ public class StorageController {
         this.storageService = storageService;
     }
 
-    public void uploadFile(StorageItem file) {
-        // TODO 4: Delegate this call to the storageService.
+    @PostMapping("/upload")
+    public void uploadFile(@RequestBody StorageItem file) {
+        storageService.uploadFile(file);
     }
 
+    @GetMapping("/active")
     public List<StorageItem> getActiveFiles() {
-        // TODO 5: Delegate this call to the storageService.
-        return null; // Replace this
+        return storageService.getActiveFiles();
     }
 
+    @GetMapping("/active/cost")
     public double getTotalActiveStorageCost() {
-        // TODO 6: Delegate this call to the storageService.
-        return 0.0; // Replace this
+        return storageService.getTotalActiveStorageCost();
     }
 
+    @GetMapping("/active/expensive")
     public StorageItem findMostExpensiveActiveFile() {
-        // TODO 7: Delegate this call to the storageService.
-        return null; // Replace this
+        return storageService.findMostExpensiveActiveFile();
     }
 
-    public void archiveFile(String fileId) {
-        // TODO 8: Delegate this call to the storageService.
+    @DeleteMapping("/{fileId}")
+    public void archiveFile(@PathVariable String fileId) {
+        storageService.archiveFile(fileId);
     }
 
-    public long countActiveOfType(Class<? extends StorageItem> type) {
-        // TODO 9: Delegate this call to the storageService.
-        return 0; // Replace this
+    @PostMapping("/count-type")
+    public long countActiveOfType(@RequestBody Class<? extends StorageItem> type) {
+        return storageService.countActiveOfType(type);
     }
 
-    // TODO 34: Declare a generic method named getActiveFilesByType with the exact same signature as the one in StorageService.
-    // Delegate the call to the storageService and return the result.
-    // Replace the following line with your full method implementation:
-    // ...
+    @PostMapping("/active-by-type")
+    public <T extends StorageItem> List<T> getActiveFilesByType(@RequestBody Class<T> type) {
+        return storageService.getActiveFilesByType(type);
+    }
 }

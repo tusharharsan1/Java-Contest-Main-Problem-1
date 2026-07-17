@@ -1,16 +1,26 @@
-# COMPLETE ASSIGNMENT SPECIFICATION: Cloud Storage Billing & File Management
+# Cloud Storage Billing & File Management
 
-### Problem Context for the Student
+### Problem Statement
+You are building the core backend for a cloud storage provider (like Google Drive or Dropbox). Users upload different kinds of files — documents, media (photos/video), and archives. Each file type is billed at a different rate per megabyte. The system must track all uploaded files, compute storage bills dynamically using polymorphism, and allow files to be archived (moved to cold storage) or restored.
 
-You are building the backend for a cloud storage provider (like Google Drive or Dropbox). Users upload different kinds of files — documents, media (photos/video), and archives. Each file type is billed at a different rate per megabyte.
+A file operation touches the in-memory repository and triggers streams to filter and compute metrics, so understanding functional querying and object-oriented principles is critical: calculating the wrong storage cost or allowing a file size to be negative must never occur.
 
-This project is set up as a **Spring Boot** application. However, instead of connecting to a real database, you will manage the data in-memory using Java Collections. This will test your ability to use Spring Dependency Injection alongside pure Java Object-Oriented Programming (OOP) and Streams.
+### Tasks
 
-Your job is to complete the partially-implemented codebase so the storage and billing system works correctly and safely. There are **30 TODOs** (numbered 4 through 9 and 11 through 34, note: some numbers like 27-32 refer to subclasses) across the project files.
+#### Task 1 — Core File Models & Inheritance
+Complete `StorageItem` and its subclasses (`DocumentFile`, `MediaFile`, `ArchiveFile`). It must:
+- Generate a unique `fileId` using a static counter formatted as `"F-1"`, `"F-2"`, etc.
+- Throw an `InvalidFileSizeException` if the `sizeInMb` is negative during construction or when updated via setter.
+- Override `getRatePerMb()` in subclasses to return `0.10` for documents, `0.25` for media, and `0.05` for archives.
+- Implement `calculateStorageCost()` in the parent class using polymorphic dispatch.
+- Ensure equality between two items is determined strictly by their `fileId`.
 
-### Constraints & Rules
-
-1. **In-Memory Storage:** The `StorageService` uses a `HashMap`. Do **not** attempt to use JPA, `@Entity`, or SQL.
-2. **Polymorphism:** `calculateStorageCost()` must rely on polymorphism (calling the overridden `getRatePerMb()`). Do NOT use `instanceof` or switch statements to check the file type.
-3. **Streams:** All collection queries in `StorageService` must use Java Streams.
-4. **Generics:** You must correctly write generic methods when prompted (`getActiveFilesByType`), explicitly declaring the generic bounds in the signature.
+#### Task 2 — Business Logic & Streams
+Implement `StorageService`. It must:
+- Add uploaded files to the internal map.
+- Use Java Streams to return only active files.
+- Use Java Streams to calculate the sum of costs for all active files.
+- Use Java Streams to find the most expensive active file. If none exist, throw a `FileNotFoundInStorageException`.
+- Archive files by looking up the ID and marking them inactive. If the file doesn't exist, throw `FileNotFoundInStorageException`.
+- Use Java Streams to count active files of a specific class type.
+- Implement the generic method `getActiveFilesByType(Class<T> type)` using Streams to safely filter and cast files to the requested generic type.
